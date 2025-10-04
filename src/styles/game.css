@@ -9,15 +9,54 @@
     border: 3px solid rgba(255, 255, 255, 0.5);
     border-radius: 5px;
     padding: 10px;
-    margin-bottom: 20px;
+    margin: 20px 0;
     font-size: 1.4rem;
 }
 
 .card {
     padding: 10px;
+    background: linear-gradient(to bottom, #ff0100 50%, #ffffff 50%);
+    position: relative;
+    isolation: isolate;
+    transition: transform 0.2s ease-out;
+}
+.card:hover {
+    transform: scale(1.1);
 }
 
-img {
+.card img {
     width: 100%;
     height: auto;
 }
+
+.card p {
+    color: #111;
+    font-size: 1.1rem;
+}
+
+.pokeball-bg-icon {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    background-image: url("../assets/pokeball.svg");
+    background-size: cover;
+    background-position: center;
+    z-index: -1;
+}
+
+.hide {
+    display: none;
+}
+
+select {
+    padding: 10px 12px;
+    margin-right: 20px;
+    font-size: 1rem;
+}
+
+.best-score {
+    font-size: 1.1rem;
+}
+

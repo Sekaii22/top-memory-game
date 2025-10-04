@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { cards } from "../data";
+import pokeball from "../assets/pokeball.svg";
 
 function getShuffledCards(cards) {
     const shuffled = [...cards];
@@ -14,14 +15,16 @@ function getShuffledCards(cards) {
     return shuffled;
 }
 
-export default function MemoryGame({size=12}) {
+export default function MemoryGame({onGameOver, size=12}) {
     const [selectedIds, setSelectedIds] = useState(new Set());
     const playCards = useRef(cards.slice(0, size));
 
     useEffect(() => {
         let ignore = false;
 
+        // get card images
         for (const card of playCards.current) {
+            const btn = document.querySelector("#" + card.name + "-btn");
             const img = document.querySelector("#" + card.name);
             const url = "https://pokeapi.co/api/v2/pokemon/" + card.name;
             
@@ -34,6 +37,7 @@ export default function MemoryGame({size=12}) {
                     if (!ignore) {
                         const imageUrl = obj.sprites.other["official-artwork"]["front_default"];
                         img.src = imageUrl;
+                        btn.classList.remove("hide");
                     }
                 });
         }
@@ -51,12 +55,14 @@ export default function MemoryGame({size=12}) {
     function handleClick(id,) {
         if (selectedIds.has(id)) {
             alert("You lose!!");
+            onGameOver(selectedIds.size);
             resetGame();
             return;
         }
 
         if (selectedIds.size + 1 === playCards.current.length) {
             alert("You won!!");
+            onGameOver(selectedIds.size + 1);
             resetGame();
             return;
         }
@@ -74,10 +80,12 @@ export default function MemoryGame({size=12}) {
                 {
                     playCards.current.map(card => (
                         <button 
-                            className="card" 
+                            className="card hide"
+                            id={card.name + "-btn"}
                             key={card.id} 
                             onClick={() => handleClick(card.id)}
                         >
+                            <div class="pokeball-bg-icon"></div>
                             <img id={card.name}/>
                             <p>{card.name[0].toUpperCase() + card.name.slice(1)}</p>
                         </button>
