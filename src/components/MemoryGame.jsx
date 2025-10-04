@@ -1,55 +1,5 @@
-import { useState, useEffect } from "react";
-
-const cards = [
-    {
-        id: 1,
-        name: "pikachu"
-    },
-    {
-        id: 2,
-        name: "charizard"
-    },
-    {
-        id: 3,
-        name: "ditto"
-    },
-    {
-        id: 4,
-        name: "lucario"
-    },
-    {
-        id: 5,
-        name: "greninja"
-    },
-    {
-        id: 6,
-        name: "rowlet"
-    },
-    {
-        id: 7,
-        name: "sylveon"
-    },
-    {
-        id: 8,
-        name: "garchomp"
-    },
-    {
-        id: 9,
-        name: "rayquaza"
-    },
-    {
-        id: 10,
-        name: "gengar"
-    },
-    {
-        id: 11,
-        name: "gardevoir"
-    },
-    {
-        id: 12,
-        name: "mewtwo"
-    }
-]
+import { useState, useEffect, useRef } from "react";
+import { cards } from "../data";
 
 function getShuffledCards(cards) {
     const shuffled = [...cards];
@@ -66,26 +16,36 @@ function getShuffledCards(cards) {
 
 export default function MemoryGame({size=12}) {
     const [selectedIds, setSelectedIds] = useState(new Set());
-    const [playCards, setPlayCards] = useState(cards.slice(0, size));
+    const playCards = useRef(cards.slice(0, size));
 
     useEffect(() => {
-        console.log("useEffect");
-        for (const card of playCards) {
+        let ignore = false;
+
+        for (const card of playCards.current) {
             const img = document.querySelector("#" + card.name);
             const url = "https://pokeapi.co/api/v2/pokemon/" + card.name;
-
+            
             fetch(url)
-                .then((response) => response.json())
+                .then((response) => {
+                    if (!ignore)
+                        return response.json()
+                })
                 .then((obj) => {
-                    const imageUrl = obj.sprites.other["official-artwork"]["front_default"];
-                    img.src = imageUrl;
+                    if (!ignore) {
+                        const imageUrl = obj.sprites.other["official-artwork"]["front_default"];
+                        img.src = imageUrl;
+                    }
                 });
         }
+
+        return () => {
+            ignore = true;
+        };
     }, []);
 
     function resetGame() {
         setSelectedIds(new Set());
-        setPlayCards(cards.slice(0, size));
+        playCards.current = cards.slice(0, size);
     }
 
     function handleClick(id,) {
@@ -95,24 +55,24 @@ export default function MemoryGame({size=12}) {
             return;
         }
 
-        if (selectedIds.size + 1 === playCards.length) {
+        if (selectedIds.size + 1 === playCards.current.length) {
             alert("You won!!");
             resetGame();
             return;
         }
                 
         setSelectedIds(new Set([...selectedIds, id]));
-        setPlayCards(getShuffledCards(playCards));
+        playCards.current = getShuffledCards(playCards.current);
     }
 
     return (
         <>
             <div>
-                <span className="score">Score: {selectedIds.size}/{playCards.length}</span>
+                <span className="score">Score: {selectedIds.size}/{playCards.current.length}</span>
             </div>
             <div className="card-container">
                 {
-                    playCards.map(card => (
+                    playCards.current.map(card => (
                         <button 
                             className="card" 
                             key={card.id} 
